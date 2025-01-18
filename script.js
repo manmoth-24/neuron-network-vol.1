@@ -1,4 +1,4 @@
-//ベクトルの計算式
+//ニューロンネットワークのテストのスクリプト
 console.log("script is running")
 
 //pythonで言うrangeの関数
@@ -156,17 +156,72 @@ class OperateVector{
 
 var mathVector = new OperateVector();
 
-var firstVector = new Vector(3, 3, 
-                             [
-                                 [1,2,3],
-                                 [4,5,6],
-                                 [7,8,9]
-                            ])
-var secondVector = new Vector(3, 1,
-                              [
-                                  [-1],
-                                  [-2],
-                                  [-3]
-                            ])
 
-console.log(mathVector.times(firstVector, secondVector))
+class NeuronNetwork{
+    //ネットワークの層の数のトリセツ
+    
+    //入力層と出力層一つずつを引いた数が隠れ層の数になる
+    //たとえば
+    //ネットワークの数を5とすると
+    //5-1-1で、３つの隠れ層があるということ
+
+    //また、重みがかかるのは層と層の間であるから、重みの総数は4つ
+    //バイアスは入力層にはかからないから、4つある
+    constructor(layerNum, layerSize){
+        //レイヤーの数（length - 1)
+        this.layerQuantity = layerNum
+
+        var network = [];
+        for (var i = 0;i < layerNum; i++){
+            var layer = new Vector(layerSize[i], 1)
+            network.push(layer)
+        }
+        //ネットワーク本体、内容はVector
+        this.network = network;
+
+        var weights = []
+        var biases = []
+
+        for (var i = 0; i < layerNum - 1; i++){
+            var w = new Vector(this.network[i + 1].line, this.network[i].line, undefined, true)
+            weights.push(w)
+        }
+        //ネットワークの重み
+        this.weight = weights
+
+        for (var i = 0; i < layerNum - 1; i++){
+            var b = new Vector(this.network[i + 1].line, 1, undefined, true)
+            biases.push(b)
+        }
+        //ネットワークのバイアス
+        this.bias = biases
+    }
+
+    Play(input){
+        this.network[0] = input
+
+        // console.log(this.network)
+        // console.log(this.weight)
+        // console.log(this.bias)
+
+        for (var i = 0; i < this.layerQuantity - 1; i++){
+            console.log(mathVector.times(this.weight[i], this.network[i]))
+            this.network[i + 1] = mathVector.add(mathVector.times(this.weight[i], this.network[i]), this.bias[i])
+        }
+
+        return this.network[this.layerQuantity - 1]
+    }
+}
+
+var network = new NeuronNetwork(5, [1,3,5,3,1])
+
+console.log("結果:" + network.Play(new Vector(1,1,[[0.8]])).getElem(0,0))
+console.log(network.network)
+    
+
+    
+
+
+        
+
+            

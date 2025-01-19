@@ -156,6 +156,19 @@ class OperateVector{
 
 var mathVector = new OperateVector();
 
+function sigmoid(x){
+    return 1 / (1 + Math.exp(x))
+}
+
+function sigmoidVec(vec){
+    var v = new Vector(vec.line, vec.column, vec.vector)
+    for (i = 0;i < vec.line;i ++){
+        for (i2 = 0;i2 < vec.column; i2++){
+            v.setElem(i, i2, sigmoid(vec.getElem(i, i2)))
+        }
+    }
+    return v
+}
 
 class NeuronNetwork{
     //ネットワークの層の数のトリセツ
@@ -197,7 +210,7 @@ class NeuronNetwork{
         this.bias = biases
     }
 
-    Play(input){
+    Play(input, activation){
         this.network[0] = input
 
         // console.log(this.network)
@@ -205,17 +218,44 @@ class NeuronNetwork{
         // console.log(this.bias)
 
         for (var i = 0; i < this.layerQuantity - 1; i++){
-            console.log(mathVector.times(this.weight[i], this.network[i]))
-            this.network[i + 1] = mathVector.add(mathVector.times(this.weight[i], this.network[i]), this.bias[i])
+            var elem = mathVector.add(mathVector.times(this.weight[i], this.network[i]), this.bias[i])
+            switch(activation){
+                    case "sigmoid":
+                        elem = sigmoidVec(elem)
+                        break;
+            }
+            this.network[i + 1] = elem
         }
 
         return this.network[this.layerQuantity - 1]
+    }
+
+    Cost(exp, teacher){
+        var c = 0;
+        if (exp.column == 1 && teacher.column == 1 && exp.line == teacher.line){
+            for (var i = 0;i < exp.line;i ++){
+                c += (exp.getElem(i, 1) - exp.getElem(i, 1))**2
+            }
+        }else{
+            console.error("cost error")
+        }
+        return c / exp.line
+    }
+
+    FixWeights(exp, teacher, expOnRe){
+        //読み取り専用
+        var nw = this.network;
+        var wg = this.weight;
+        var bi = this.bias;
+
+        //export -> layer(L-1) -> layer(L-2) -> ・・・ -> layer(2) -> input
+        
     }
 }
 
 var network = new NeuronNetwork(5, [1,3,5,3,1])
 
-console.log("結果:" + network.Play(new Vector(1,1,[[0.8]])).getElem(0,0))
+console.log("結果:" + network.Play(new Vector(1,1,[[0.8]]), "sigmoid").getElem(0,0))
 console.log(network.network)
     
 
@@ -224,4 +264,4 @@ console.log(network.network)
 
         
 
-            
+            i
